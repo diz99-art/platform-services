@@ -25,6 +25,9 @@ public class SecurityConfig {
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
+				// Spring Security의 기본 로그아웃 필터는 POST /logout을 컨트롤러보다 먼저 가로채 /login?logout으로 리다이렉트(302)한다.
+				// 우리 로그아웃은 리프레시 토큰을 지우는 API(AuthController)라 기본 필터를 끈다
+				.logout(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.POST, "/signup", "/login", "/refresh").permitAll()
 						.requestMatchers(HttpMethod.GET, "/.well-known/jwks.json").permitAll()
