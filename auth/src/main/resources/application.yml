@@ -54,6 +54,11 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+logging:
+  pattern:
+    # 로그 줄마다 요청 ID (RequestIdFilter가 MDC에 넣는다). Traefik 접근 로그와 같은 값
+    correlation: "[%X{requestId:-}] "
+
 auth:
   # 토큰을 누가 발급했나 (iss). 받는 쪽이 이 값을 확인한다
   issuer: platform-auth
