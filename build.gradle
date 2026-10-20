@@ -1,0 +1,26 @@
+// 모든 모듈이 같이 쓰는 설정. 각 모듈의 build.gradle에는 그 서비스의 의존성만 적는다.
+plugins {
+	id 'org.springframework.boot' version '4.1.1' apply false
+	id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+subprojects {
+	apply plugin: 'java'
+
+	group = 'com.platform'
+	version = '0.0.1-SNAPSHOT'
+
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(21)
+		}
+	}
+
+	repositories {
+		mavenCentral()
+	}
+
+	tasks.withType(Test).configureEach {
+		useJUnitPlatform()
+	}
+}

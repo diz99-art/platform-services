@@ -1,0 +1,4 @@
+rootProject.name = 'platform-services'
+
+// 서비스마다 모듈 하나. gateway, notification을 만들면 여기에 추가한다
+include 'auth'

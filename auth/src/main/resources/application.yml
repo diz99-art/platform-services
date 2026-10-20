@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: auth
+  profiles:
+    # 프로필을 정하지 않으면 개발 환경(local). 운영은 SPRING_PROFILES_ACTIVE=prod
+    default: local
+  config:
+    # 내 컴퓨터에서는 .env 파일을 읽는다 (없으면 건너뜀, git에 올리지 않는다)
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:auth}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME:auth}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 테이블은 db/schema.sql이 만든다. Hibernate는 엔티티와 테이블이 맞는지만 확인하고, 다르면 시작하지 않는다
+      ddl-auto: validate
+    open-in-view: false
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+server:
+  # 모든 주소가 /auth 아래에 열린다 (Ingress가 /auth를 이 서비스로 보낸다. 쿠폰 서버는 /)
+  servlet:
+    context-path: /auth
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: auth
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+auth:
+  # 토큰을 누가 발급했나 (iss). 받는 쪽이 이 값을 확인한다
+  issuer: platform-auth
+  # 토큰을 누구에게 쓰라고 발급했나 (aud). 플랫폼 서비스 공통
+  audience: platform
+  # 액세스 토큰은 짧게: 빼앗겨도 피해 시간이 짧다. 리프레시 토큰은 길게: 다시 로그인하지 않아도 되게
+  access-token-ttl: 15m
+  refresh-token-ttl: 14d
+  keys:
+    # 서명용 개인키(PEM, PKCS#8) 폴더. 파일 이름 = 키 id(kid). 비어 있으면 실행할 때마다 임시 키를 만든다 (개발·테스트용)
+    dir: ${AUTH_JWT_KEYS_DIR:}
+    # 지금 서명에 쓰는 키 id. 폴더의 다른 키는 공개키로만 JWKS에 남는다 (키 교체 중 옛 토큰 검증용)
+    active-kid: ${AUTH_JWT_ACTIVE_KID:}
+  lock:
+    # 로그인 실패가 failure-window 안에 max-failures번이면 duration 동안 잠근다
+    max-failures: 5
+    failure-window: 15m
+    duration: 5m
+  admin:
+    # 비어 있지 않으면 시작할 때 이 관리자 계정이 없으면 만든다 (운영은 Secret에서)
+    email: ${AUTH_ADMIN_EMAIL:}
+    password: ${AUTH_ADMIN_PASSWORD:}

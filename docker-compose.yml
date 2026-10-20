@@ -1,0 +1,14 @@
+# 로컬 개발용 MySQL·Redis (테스트는 Testcontainers가 따로 띄운다)
+# 처음 한 번: cp .env.example .env
+services:
+  mysql:
+    image: mysql:8.4.11
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: auth
+      MYSQL_USER: ${DB_USERNAME:-auth}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change-me}
+    ports: ["3306:3306"]
+  redis:
+    image: redis:7.4.9-alpine
+    ports: ["6379:6379"]

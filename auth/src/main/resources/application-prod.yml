@@ -1,0 +1,5 @@
+# 운영(k3s) 프로필. 접속 정보·비밀번호·키는 모두 환경변수와 Secret으로 받는다 (platform-infra의 k8s/apps/auth)
+# 관리용 포트(health, prometheus)는 8081로 분리한다. Service·Ingress로는 열지 않는다
+management:
+  server:
+    port: 8081
